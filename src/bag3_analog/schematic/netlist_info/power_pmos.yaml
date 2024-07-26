@@ -1,0 +1,304 @@
+lib_name: bag3_analog
+cell_name: power_pmos
+view_name: schematic
+bbox:
+  - -238
+  - 28
+  - 91
+  - 217
+terminals:
+  G:
+    obj:
+      - 1
+      - inst:
+          lib_name: basic
+          cell_name: ipin
+          view_name: symbol
+          xform:
+            - -135
+            - 155
+            - R0
+          bbox:
+            - -192
+            - 129
+            - -135
+            - 165
+          connections:
+            {}
+          params:
+            {}
+          is_primitive: true
+        attr:
+          layer: 229
+          purpose: 237
+          net: ""
+          origin:
+            - -165
+            - 155
+          alignment: 7
+          orient: R0
+          font: 5
+          height: 10
+          overbar: false
+          visible: true
+          drafting: true
+          attr_type: 0
+          format: 1
+    stype: 0
+    ttype: 0
+  VDD:
+    obj:
+      - 1
+      - inst:
+          lib_name: basic
+          cell_name: iopin
+          view_name: symbolr
+          xform:
+            - -145
+            - 130
+            - R0
+          bbox:
+            - -206
+            - 104
+            - -135
+            - 140
+          connections:
+            {}
+          params:
+            {}
+          is_primitive: true
+        attr:
+          layer: 229
+          purpose: 237
+          net: ""
+          origin:
+            - -170
+            - 130
+          alignment: 7
+          orient: R0
+          font: 5
+          height: 10
+          overbar: false
+          visible: true
+          drafting: true
+          attr_type: 0
+          format: 1
+    stype: 1
+    ttype: 2
+  VDD_OUT:
+    obj:
+      - 1
+      - inst:
+          lib_name: basic
+          cell_name: iopin
+          view_name: symbolr
+          xform:
+            - -145
+            - 105
+            - R0
+          bbox:
+            - -206
+            - 79
+            - -135
+            - 115
+          connections:
+            {}
+          params:
+            {}
+          is_primitive: true
+        attr:
+          layer: 229
+          purpose: 237
+          net: ""
+          origin:
+            - -170
+            - 105
+          alignment: 7
+          orient: R0
+          font: 5
+          height: 10
+          overbar: false
+          visible: true
+          drafting: true
+          attr_type: 0
+          format: 1
+    stype: 1
+    ttype: 2
+shapes:
+  -
+    - 5
+    - layer: 228
+      purpose: 4294967295
+      net: VDD
+      points:
+        -
+          - 0
+          - 130
+        -
+          - 40
+          - 130
+  -
+    - 7
+    - layer: 228
+      purpose: 237
+      net: VDD
+      origin:
+        - 4
+        - 137
+      alignment: 2
+      orient: R0
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: VDD
+  -
+    - 5
+    - layer: 228
+      purpose: 4294967295
+      net: VDD_OUT
+      points:
+        -
+          - 0
+          - 60
+        -
+          - 0
+          - 100
+  -
+    - 7
+    - layer: 228
+      purpose: 237
+      net: VDD_OUT
+      origin:
+        - -7
+        - 96
+      alignment: 8
+      orient: R90
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: VDD_OUT
+  -
+    - 5
+    - layer: 228
+      purpose: 4294967295
+      net: VDD
+      points:
+        -
+          - 0
+          - 160
+        -
+          - 0
+          - 200
+  -
+    - 7
+    - layer: 228
+      purpose: 237
+      net: VDD
+      origin:
+        - -7
+        - 164
+      alignment: 2
+      orient: R90
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: VDD
+  -
+    - 5
+    - layer: 228
+      purpose: 4294967295
+      net: G
+      points:
+        -
+          - -80
+          - 130
+        -
+          - -40
+          - 130
+  -
+    - 7
+    - layer: 228
+      purpose: 237
+      net: G
+      origin:
+        - -44
+        - 137
+      alignment: 8
+      orient: R0
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: G
+instances:
+  XPPWR:
+    lib_name: BAG_prim
+    cell_name: pmos4_standard
+    view_name: symbol
+    xform:
+      - -40
+      - 130
+      - R0
+    bbox:
+      - -108
+      - 43
+      - 91
+      - 217
+    connections:
+      B: VDD
+      D: VDD_OUT
+      G: G
+      S: VDD
+    params:
+      l:
+        - 3
+        - 150n
+      nf:
+        - 3
+        - 1
+      w:
+        - 3
+        - 550n
+    is_primitive: true
+props:
+  connectivityLastUpdated:
+    - 0
+    - 372
+  instance#:
+    - 0
+    - 1
+  lastSchematicExtraction:
+    - 4
+    - time_val: 1668629377
+  net#:
+    - 0
+    - 0
+  pin#:
+    - 0
+    - 3
+  schGeometryLastUpdated:
+    - 0
+    - 372
+  schGeometryVersion:
+    - 3
+    - sch.ds.gm.1.4
+  schXtrVersion:
+    - 3
+    - sch.10.0
+app_defs:
+  _dbLastSavedCounter:
+    - 0
+    - 372
+  _dbvCvTimeStamp:
+    - 0
+    - 372
+  cdbRevision:
+    - 0
+    - 227612

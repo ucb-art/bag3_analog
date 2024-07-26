@@ -58,6 +58,7 @@ class RDAC(TemplateBase):
 
         num_dec: int = self.params['num_dec']
         dec_params: Mapping[str, Any] = self.params['dec_params']
+        dec_out_layer: int = dec_params.get('out_layer', None)
         dec_master = self.new_template(GenericWrapper, params=dict(cls_name=RDACDecoder.get_qualified_name(),
                                                                    params=dec_params))
         dec_core: RDACDecoder = dec_master.core
@@ -74,8 +75,10 @@ class RDAC(TemplateBase):
         ym_layer = xm_layer + 1
         xxm_layer = ym_layer + 1
 
+        if dec_out_layer is None: dec_out_layer = ym_layer
+
         top_layer: int = self.params['top_layer']
-        assert top_layer >= xxm_layer, f'This generator expects top_layer={top_layer} is >= {xxm_layer}.'
+        assert top_layer >= ym_layer, f'This generator expects top_layer={top_layer} is >= {ym_layer}.'
 
         # --- Placement --- #
         res_w, res_h = res_master.bound_box.w, res_master.bound_box.h
@@ -99,7 +102,7 @@ class RDAC(TemplateBase):
         else:
             raise ValueError(f'num_dec={num_dec} is not supported yet. Use 1 or 2.')
 
-        dec0_inst = self.add_instance(dec_master, xform=Transform(dx=start_x + res_w))
+        dec0_inst = self.add_instance(dec_master, xform=Transform(dx=start_x + res_w + h_pitch))
         dec_list.append(dec0_inst)
         _coord0 = min(dec0_inst.get_pin('VSS')[0].bound_box.ym, dec0_inst.get_pin('VDD')[0].bound_box.ym)
         res_inst = self.add_instance(res_master, xform=Transform(dx=start_x), commit=False)
@@ -133,9 +136,9 @@ class RDAC(TemplateBase):
         # export output as WireArray
         _out0 = dec0_inst.get_pin('out')
         if isinstance(_out0, BBox):
-            w_out_ym = self.find_track_width(ym_layer, _out0.w)
-            _ym_tidx0 = self.grid.coord_to_track(ym_layer, _out0.xm)
-            _out0_warr = self.add_wires(ym_layer, _ym_tidx0, lower=_out0.yl, upper=self.bound_box.yh, width=w_out_ym)
+            w_out_ym = self.find_track_width(dec_out_layer, _out0.w)
+            _ym_tidx0 = self.grid.coord_to_track(dec_out_layer, _out0.xm)
+            _out0_warr = self.add_wires(dec_out_layer, _ym_tidx0, lower=_out0.yl, upper=self.bound_box.yh, width=w_out_ym)
         else:
             _out0_warr = self.extend_wires(_out0, upper=self.bound_box.yh)
         if num_dec == 2:
@@ -152,7 +155,7 @@ class RDAC(TemplateBase):
             self.add_pin('out1', _out1_warr, mode=PinMode.UPPER)
         else:  # num_dec == 1:
             self.add_pin('out', _out0_warr, mode=PinMode.UPPER)
-    
+
         # res_ladder output to rdac_decoder input
         for idx in range(num_in):
             self.connect_bbox_to_track_wires(Direction.LOWER, vm_lp, dec0_inst.get_pin(f'in<{idx}>'),
@@ -161,7 +164,7 @@ class RDAC(TemplateBase):
                 self.connect_bbox_to_track_wires(Direction.LOWER, vm_lp, dec1_inst.get_pin(f'in<{idx}>'),
                                                  res_inst.get_pin(f'out<{idx}>'))
         # --- Supplies
-        # get res supplies on xm_layer        
+        # get res supplies on xm_layer
         res_vss_xm = res_inst.get_all_port_pins('VSS', layer=xm_layer)
         res_vdd_xm = res_inst.get_all_port_pins('VDD', layer=xm_layer)
 
@@ -190,15 +193,25 @@ class RDAC(TemplateBase):
             dec_vdd_xxm.extend(inst.get_all_port_pins('VDD', layer=xxm_layer))
         vss_top = self.connect_wires(dec_vss_xxm)
         vdd_top = self.connect_wires(dec_vdd_xxm)
-
         # Connect dec and res supplies
         vss_top = self.connect_to_track_wires(res_vss_ym, vss_top)
         vdd_top = self.connect_to_track_wires(res_vdd_ym, vdd_top)
-        
-        # Optional power straps
-        for _layer in range(xxm_layer + 1, top_layer + 1):
-            vdd_top, vss_top = self.do_power_fill(_layer, self._tr_manager, vdd_top, vss_top)
 
+        if not vss_top or not vdd_top:
+            # extend inst suppliest to top layer
+            inst_top_layer = inst.master.core.place_info.arr_info.top_layer
+            dec_vdd_top = inst.get_all_port_pins('VDD', layer=inst_top_layer)
+            dec_vss_top = inst.get_all_port_pins('VSS', layer=inst_top_layer)
+            for _layer in range(inst_top_layer + 1, top_layer + 1):
+                dec_vdd_top, dec_vss_top = self.do_power_fill(_layer, self._tr_manager, dec_vdd_top, dec_vss_top)
+            vdd_top = res_vdd_ym + dec_vdd_top
+            vss_top = res_vss_ym + dec_vss_top
+            vdd_top = self.connect_wires(vdd_top)
+            vss_top = self.connect_wires(vss_top)
+
+        # # Optional power straps
+        # for _layer in range(xxm_layer + 1, top_layer + 1):
+        #     vdd_top, vss_top = self.do_power_fill(_layer, self._tr_manager, vdd_top, vss_top)
         for sup_top, sup_name in [(vdd_top, 'VDD'), (vss_top, 'VSS')]:
             sup = self.connect_wires(sup_top)
             if len(sup) == 1:

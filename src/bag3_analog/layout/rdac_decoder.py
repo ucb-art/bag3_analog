@@ -35,7 +35,12 @@ class RDACDecoder(MOSBase):
             seg_dict='Dictionary of segments of sub cell components',
             num_sel_col='Number of select inputs for column decoder',
             num_sel_row='Number of select inputs for row decoder',
+            out_layer='Output layer ID',
         )
+
+    @classmethod
+    def get_default_param_values(cls) -> Mapping[str, Any]:
+        return dict(out_layer=None)
 
     def draw_layout(self) -> None:
         pinfo = MOSBasePlaceInfo.make_place_info(self.grid, self.params['pinfo'])
@@ -44,16 +49,25 @@ class RDACDecoder(MOSBase):
         seg_dict: Mapping[str, Any] = self.params['seg_dict']
         num_sel_col: int = self.params['num_sel_col']
         num_sel_row: int = self.params['num_sel_row']
+        out_layer: int = self.params['out_layer']
         num_sel = num_sel_row + num_sel_col
         num_in = 1 << num_sel
         num_rows = 1 << num_sel_row
 
         # make masters
-        row_params = dict(pinfo=pinfo, seg_dict=seg_dict, num_sel=num_sel_row, draw_taps=DrawTaps.LEFT)
+        row_params = dict(pinfo=pinfo,
+                          seg_dict=seg_dict,
+                          num_sel=num_sel_row,
+                          draw_taps=DrawTaps.LEFT,
+                          out_layer=out_layer)
         row_master: RDACDecoderRow = self.new_template(RDACDecoderRow, params=row_params)
         row_ncols = row_master.num_cols
 
-        col_params = dict(pinfo=pinfo, seg_dict=seg_dict, num_sel=num_sel_col, num_rows=num_rows)
+        col_params = dict(pinfo=pinfo,
+                          seg_dict=seg_dict,
+                          num_sel=num_sel_col,
+                          num_rows=num_rows,
+                          out_layer=out_layer)
         col_master: RDACDecoderCol = self.new_template(RDACDecoderCol, params=col_params)
         col_ncols = col_master.num_cols
 
@@ -99,8 +113,8 @@ class RDACDecoder(MOSBase):
                                upper=self.bound_box.xh)
             self.connect_wires([col_inst.get_pin(sup, layer=xm_layer), row_inst.get_pin(sup, layer=xm_layer)], lower=0,
                                upper=self.bound_box.xh)
-            sup_col = col_inst.get_pin(sup, layer=xxm_layer)
-            sup_row = row_inst.get_pin(sup, layer=xxm_layer)
+            sup_col = col_inst.get_pin(sup, layer=col_inst.master.place_info.arr_info.top_layer)
+            sup_row = row_inst.get_pin(sup, layer=row_inst.master.place_info.arr_info.top_layer)
             sup_xxm = self.connect_wires([sup_col, sup_row], lower=min(0, sup_row.lower, sup_col.lower),
                                          upper=max(self.bound_box.xh, sup_row.upper, sup_col.upper))[0]
             self.add_pin(sup, sup_xxm)

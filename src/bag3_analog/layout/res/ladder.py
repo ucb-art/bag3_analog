@@ -289,6 +289,11 @@ class ResLadder(ResArrayBase):
         nx_dum = self.params['nx_dum']
         ny_dum = self.params['ny_dum']
 
+        #TODO: Add support for clean no-dummy generation. For now these assertions
+        #      are here to ensure clean ResLadder generation
+
+        assert(nx_dum > 0 and ny_dum > 0, "ResLadder generation without dummies is not currently supported.")
+
         nx_core = nx - 2 * nx_dum
         ny_core = ny - 2 * ny_dum
 

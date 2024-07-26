@@ -96,7 +96,7 @@ class bag3_analog__res_ladder(Module):
         if self.tech_info.has_res_metal():
             self.instances['XMRES'].design(w=mres_w, l=mres_l, layer=mres_layer)
             self.reconnect_instance('XMRES', [('PLUS', 'out<0>'), ('MINUS', 'VSS' if bot_vss else 'bottom')])
-            
+
             # Rename out
             self.rename_pin('out', f'out<{ncore - 1}:0>')
             self.has_idx0 = True

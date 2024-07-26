@@ -42,11 +42,12 @@ class RDACDecoderRow(MOSBase):
             seg_dict='Dictionary of segments of sub cell components',
             num_sel='Number of select inputs',
             draw_taps='"BOTH" or "LEFT" or "RIGHT" or "NONE"',
+            out_layer='Output layer id',
         )
 
     @classmethod
     def get_default_param_values(cls) -> Mapping[str, Any]:
-        return dict(draw_taps=DrawTaps.BOTH)
+        return dict(draw_taps=DrawTaps.BOTH, out_layer=None)
 
     def draw_layout(self) -> None:
         pinfo = MOSBasePlaceInfo.make_place_info(self.grid, self.params['pinfo'])
@@ -54,6 +55,7 @@ class RDACDecoderRow(MOSBase):
 
         seg_dict: Mapping[str, Any] = self.params['seg_dict']
         num_sel: int = self.params['num_sel']
+        out_layer: int = self.params['out_layer']
         num_in = 1 << num_sel
         draw_taps: Union[DrawTaps, str] = self.params['draw_taps']
         seg_tap = 4
@@ -94,6 +96,8 @@ class RDACDecoderRow(MOSBase):
         vm_layer = hm_layer + 1
         xm_layer = vm_layer + 1
         ym_layer = xm_layer + 1
+
+        assert pinfo.arr_info.top_layer >= vm_layer, f'Top layer must be at least up to layer {vm_layer}.'
 
         # --- Placement --- #
         vdd_hm_list, vss_hm_list = [], []
@@ -144,10 +148,11 @@ class RDACDecoderRow(MOSBase):
 
             pg_s_vm = self.connect_to_tracks(_pg.get_pin('s'), TrackID(vm_layer, pg_vm_locs[0], w_sig_vm),
                                              min_len_mode=MinLenMode.MIDDLE)
-            pg_s_xm = self.connect_to_tracks(pg_s_vm, TrackID(xm_layer, pg_xm_locs[1], w_sig_xm),
-                                             min_len_mode=MinLenMode.MIDDLE)
-            pg_s_ym = self.connect_to_tracks(pg_s_xm, TrackID(ym_layer, pg_ym_locs[0], w_sig_ym),
-                                             min_len_mode=MinLenMode.MIDDLE)
+            if pinfo.arr_info.top_layer >= ym_layer:
+                pg_s_xm = self.connect_to_tracks(pg_s_vm, TrackID(xm_layer, pg_xm_locs[1], w_sig_xm),
+                                                min_len_mode=MinLenMode.MIDDLE)
+                pg_s_ym = self.connect_to_tracks(pg_s_xm, TrackID(ym_layer, pg_ym_locs[0], w_sig_ym),
+                                                min_len_mode=MinLenMode.MIDDLE)
 
             self.connect_to_tracks(pg_d, TrackID(vm_layer, pg_vm_locs[-1], w_sig_vm))
 
@@ -156,7 +161,8 @@ class RDACDecoderRow(MOSBase):
             self.add_pin(f'pin<{idx}>', pg_d[1], label=f'in<{idx}>')
 
             pg_out_vm_list.append(pg_s_vm)
-            pg_out_ym_list.append(pg_s_ym)
+            if pinfo.arr_info.top_layer >= ym_layer:
+                pg_out_ym_list.append(pg_s_ym)
 
             # sel and selb
             if len(sel_vm_locs) == 0:
@@ -176,9 +182,13 @@ class RDACDecoderRow(MOSBase):
         self.set_mos_size(num_cols=tot_ncols, num_tiles=1 + num_in)
 
         # output
-        self.connect_wires(pg_out_vm_list)
-        out_ym = self.connect_wires(pg_out_ym_list, upper=self.bound_box.yh)[0]
-        self.add_pin('out', out_ym, mode=PinMode.UPPER)
+        out_vm = self.connect_wires(pg_out_vm_list)
+        if out_layer is None or out_layer == ym_layer:
+            out_ym = self.connect_wires(pg_out_ym_list, upper=self.bound_box.yh)[0]
+            self.add_pin('out', out_ym, mode=PinMode.UPPER)
+        else:
+            out_vm = self.extend_wires(out_vm, upper=self.bound_box.yh)[0]
+            self.add_pin('out', out_vm, mode=PinMode.UPPER)
 
         # tile 0: left tap, inverters, right tap
         vdd_tap_list, vss_tap_list = [], []
@@ -211,7 +221,8 @@ class RDACDecoderRow(MOSBase):
 
         # --- Routing --- #
         # supply
-        route_supplies(self, vdd_hm_list, vss_hm_list, self.bound_box.xh, draw_taps)
+        route_supplies(self, vdd_hm_list, vss_hm_list, self.bound_box.xh,
+                       pinfo.arr_info.top_layer, draw_taps)
 
         self.sch_params = dict(
             inv_params=inv_master_e.sch_params,
@@ -300,7 +311,7 @@ class RDACDecoderCol(MOSBase):
         selb_vm_list = [[] for _ in range(num_sel)]
         pg_nd_list = [[] for _ in range(num_rows)]
         pg_pd_list = [[] for _ in range(num_rows)]
-        
+
         for col_idx in range(num_cols):
             _and = self.add_tile(and_master, 0, cur_col)
 
@@ -340,7 +351,7 @@ class RDACDecoderCol(MOSBase):
                 # passgate en and enb
                 en_list.append(_pg.get_pin('en'))
                 enb_list.append(_pg.get_pin('enb'))
-                
+
                 # passgate input
                 ref_tidx = min(_en.track_id.base_index, _enb.track_id.base_index)
                 _vm_tidx = self.tr_manager.get_next_track(vm_layer, ref_tidx, 'sig', 'sig', -1)
@@ -392,7 +403,7 @@ class RDACDecoderCol(MOSBase):
 
                 _sel_idx = sel_idx + and_in - _in_idx - 1
                 # output
-                if not _selb_tidx: 
+                if not _selb_tidx:
                     _selb_tidx = self.grid.coord_to_track(vm_layer, _inv.bound_box.xl, RoundMode.LESS_EQ)
                 _ref_tidx = _selb_tidx if not _sel_tidx else _sel_tidx
                 _sel_tidx = self.tr_manager.get_next_track(vm_layer, _ref_tidx, 'sig', 'sig', 1)
@@ -436,7 +447,7 @@ class RDACDecoderCol(MOSBase):
             self.connect_to_track_wires(vss_tap_list[_tidx], vss_hm[-1])
             vdd_hm.append(self.connect_wires(vdd_hm_list[_tidx])[0])
             self.connect_to_track_wires(vdd_tap_list[_tidx], vdd_hm[-1])
-        route_supplies(self, vdd_hm, vss_hm, self.bound_box.xh)
+        route_supplies(self, vdd_hm, vss_hm, self.bound_box.xh, pinfo.arr_info.top_layer)
 
         self.sch_params = dict(
             inv_params=inv_master_e.sch_params,
@@ -448,8 +459,8 @@ class RDACDecoderCol(MOSBase):
         )
 
 
-def route_supplies(cls: MOSBase, vdd_hm_list: Sequence[WireArray], vss_hm_list: Sequence[WireArray], xh: int,
-                   draw_taps: DrawTaps = DrawTaps.BOTH) -> None:
+def route_supplies(cls: MOSBase, vdd_hm_list: Sequence[WireArray], vss_hm_list: Sequence[WireArray], xh: int, top_layer: int,
+                   draw_taps: DrawTaps = DrawTaps.BOTH, ) -> None:
     vdd_hm = cls.connect_wires(vdd_hm_list, lower=0, upper=xh)[0]
     vss_hm = cls.connect_wires(vss_hm_list, lower=0, upper=xh)[0]
     vdd_pin_list = [vdd_hm]
@@ -461,7 +472,9 @@ def route_supplies(cls: MOSBase, vdd_hm_list: Sequence[WireArray], vss_hm_list: 
     ym_layer = xm_layer + 1
     xxm_layer = ym_layer + 1
 
-    for _hm_layer in (xm_layer, xxm_layer):
+    x_layers = range(xm_layer, top_layer + 1, 2)
+
+    for _hm_layer in x_layers:
         _vm_layer = _hm_layer - 1
         vss_vm_list, vdd_vm_list = [], []
         if draw_taps.has_left:

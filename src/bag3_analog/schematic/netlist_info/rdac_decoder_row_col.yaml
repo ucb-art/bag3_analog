@@ -85,45 +85,6 @@ terminals:
           format: 1
     stype: 2
     ttype: 2
-  out:
-    obj:
-      - 1
-      - inst:
-          lib_name: basic
-          cell_name: opin
-          view_name: symbol
-          xform:
-            - -520
-            - 190
-            - R0
-          bbox:
-            - -520
-            - 164
-            - -463
-            - 200
-          connections:
-            {}
-          params:
-            {}
-          is_primitive: true
-        attr:
-          layer: 229
-          purpose: 237
-          net: ""
-          origin:
-            - -495
-            - 190
-          alignment: 1
-          orient: R0
-          font: 5
-          height: 10
-          overbar: false
-          visible: true
-          drafting: true
-          attr_type: 0
-          format: 1
-    stype: 0
-    ttype: 1
   in:
     obj:
       - 1
@@ -163,6 +124,45 @@ terminals:
           format: 1
     stype: 0
     ttype: 0
+  out:
+    obj:
+      - 1
+      - inst:
+          lib_name: basic
+          cell_name: opin
+          view_name: symbol
+          xform:
+            - -520
+            - 190
+            - R0
+          bbox:
+            - -520
+            - 164
+            - -463
+            - 200
+          connections:
+            {}
+          params:
+            {}
+          is_primitive: true
+        attr:
+          layer: 229
+          purpose: 237
+          net: ""
+          origin:
+            - -495
+            - 190
+          alignment: 1
+          orient: R0
+          font: 5
+          height: 10
+          overbar: false
+          visible: true
+          drafting: true
+          attr_type: 0
+          format: 1
+    stype: 0
+    ttype: 1
   sel:
     obj:
       - 1
@@ -431,7 +431,7 @@ shapes:
     - 6
     - layer: 228
       purpose: 4294967295
-      net: <*2>sel
+      net: sel
       width: 10
       points:
         -
@@ -447,7 +447,7 @@ shapes:
     - 7
     - layer: 228
       purpose: 237
-      net: <*2>sel
+      net: sel
       origin:
         - -94
         - 82
@@ -458,7 +458,7 @@ shapes:
       overbar: false
       visible: true
       drafting: true
-      text: <*2>sel
+      text: sel
   -
     - 5
     - layer: 228
@@ -659,7 +659,7 @@ shapes:
     - 6
     - layer: 228
       purpose: 4294967295
-      net: <*2>pg_out
+      net: pg_out
       width: 10
       points:
         -
@@ -675,7 +675,7 @@ shapes:
     - 7
     - layer: 228
       purpose: 237
-      net: <*2>pg_out
+      net: pg_out
       origin:
         - 516
         - 82
@@ -686,57 +686,8 @@ shapes:
       overbar: false
       visible: true
       drafting: true
-      text: <*2>pg_out
-  -
-    - 5
-    - layer: 228
-      purpose: 4294967295
-      net: NC
-      points:
-        -
-          - 480
-          - 30
-        -
-          - 520
-          - 30
-  -
-    - 7
-    - layer: 228
-      purpose: 237
-      net: NC
-      origin:
-        - 516
-        - 37
-      alignment: 8
-      orient: R0
-      font: 5
-      height: 10
-      overbar: false
-      visible: true
-      drafting: true
-      text: NC
+      text: pg_out
 instances:
-  XINV:
-    lib_name: bag3_digital
-    cell_name: inv
-    view_name: symbol
-    xform:
-      - -90
-      - -270
-      - R0
-    bbox:
-      - -94
-      - -274
-      - 114
-      - -106
-    connections:
-      VSS: VSS
-      VDD: VDD
-      out: selb
-      in: sel
-    params:
-      {}
-    is_primitive: false
   XAND:
     lib_name: bag3_digital
     cell_name: and_complex
@@ -751,34 +702,11 @@ instances:
       - 148
       - 154
     connections:
-      VSS: VSS
       VDD: VDD
+      VSS: VSS
+      in<1:0>: <*2>sel
       out: en
       outb: enb
-      in<1:0>: <*2>sel
-    params:
-      {}
-    is_primitive: false
-  XPG:
-    lib_name: bag3_digital
-    cell_name: passgate
-    view_name: symbol
-    xform:
-      - 210
-      - -30
-      - R0
-    bbox:
-      - 206
-      - -34
-      - 448
-      - 174
-    connections:
-      s: in
-      enb: enb
-      en: en
-      d: pg_out
-      VSS: VSS
-      VDD: VDD
     params:
       {}
     is_primitive: false
@@ -796,41 +724,84 @@ instances:
       - 878
       - 146
     connections:
-      NC: NC
-      out: out
       in<1:0>: <*2>pg_out
+      out: out
+    params:
+      {}
+    is_primitive: false
+  XINV:
+    lib_name: bag3_digital
+    cell_name: inv
+    view_name: symbol
+    xform:
+      - -90
+      - -270
+      - R0
+    bbox:
+      - -94
+      - -274
+      - 114
+      - -106
+    connections:
+      VDD: VDD
+      VSS: VSS
+      in: sel
+      out: selb
+    params:
+      {}
+    is_primitive: false
+  XPG:
+    lib_name: bag3_digital
+    cell_name: passgate
+    view_name: symbol
+    xform:
+      - 210
+      - -30
+      - R0
+    bbox:
+      - 206
+      - -34
+      - 448
+      - 174
+    connections:
+      VDD: VDD
+      VSS: VSS
+      d: pg_out
+      en: en
+      enb: enb
+      s: in
     params:
       {}
     is_primitive: false
 props:
+  connectivityLastUpdated:
+    - 0
+    - 1403
+  lastSchematicExtraction:
+    - 4
+    - time_val: 1685125431
+  net#:
+    - 0
+    - 0
   pin#:
     - 0
     - 5
   schGeometryLastUpdated:
     - 0
-    - 1019
+    - 1403
   schGeometryVersion:
     - 3
     - sch.ds.gm.1.4
-  lastSchematicExtraction:
-    - 4
-    - time_val: 1675709291
-  connectivityLastUpdated:
-    - 0
-    - 1019
   schXtrVersion:
     - 3
     - sch.10.0
-  net#:
-    - 0
-    - 0
 app_defs:
   _dbLastSavedCounter:
     - 0
-    - 1019
+    - 1403
   _dbvCvTimeStamp:
     - 0
-    - 1019
+    - 1403
   cdbRevision:
     - 0
     - 227612

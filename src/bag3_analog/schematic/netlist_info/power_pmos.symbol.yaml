@@ -1,0 +1,285 @@
+lib_name: bag3_analog
+cell_name: power_pmos
+view_name: symbol
+bbox:
+  - -63
+  - -40
+  - 154
+  - 36
+terminals:
+  G:
+    obj:
+      - 0
+      - layer: 229
+        purpose: 4294967295
+        net: ""
+        bbox:
+          - 36
+          - -4
+          - 44
+          - 4
+    stype: 0
+    ttype: 0
+  VDD:
+    obj:
+      - 0
+      - layer: 229
+        purpose: 4294967295
+        net: ""
+        bbox:
+          - 76
+          - 26
+          - 84
+          - 34
+    stype: 1
+    ttype: 2
+  VDD_OUT:
+    obj:
+      - 0
+      - layer: 229
+        purpose: 4294967295
+        net: ""
+        bbox:
+          - 76
+          - -34
+          - 84
+          - -26
+    stype: 1
+    ttype: 2
+shapes:
+  -
+    - 7
+    - layer: 229
+      purpose: 237
+      net: ""
+      origin:
+        - 36
+        - 20
+      alignment: 1
+      orient: R0
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: G
+  -
+    - 7
+    - layer: 229
+      purpose: 237
+      net: ""
+      origin:
+        - 86
+        - -30
+      alignment: 1
+      orient: R0
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: VDD_OUT
+  -
+    - 7
+    - layer: 229
+      purpose: 237
+      net: ""
+      origin:
+        - 86
+        - 30
+      alignment: 1
+      orient: R0
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: VDD
+  -
+    - 0
+    - layer: 236
+      purpose: 4294967295
+      net: ""
+      bbox:
+        - 40
+        - -30
+        - 80
+        - 30
+  -
+    - 8
+    - layer: 236
+      purpose: 237
+      net: ""
+      origin:
+        - 65
+        - -30
+      alignment: 7
+      orient: R0
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: "[@instanceName]"
+      evaluator: cdsNLPEvalText
+  -
+    - 8
+    - layer: 231
+      purpose: 237
+      net: ""
+      origin:
+        - 50
+        - -15
+      alignment: 7
+      orient: R0
+      font: 5
+      height: 10
+      overbar: false
+      visible: true
+      drafting: true
+      text: "[@partName]"
+      evaluator: cdsNLPEvalText
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 80
+          - 20
+        -
+          - 80
+          - 0
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 40
+          - 0
+        -
+          - 47
+          - 0
+  -
+    - 4
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      bbox:
+        - 47
+        - -4
+        - 55
+        - 4
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 55
+          - 15
+        -
+          - 55
+          - -15
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 60
+          - -15
+        -
+          - 60
+          - 15
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 77
+          - 20
+        -
+          - 67
+          - 15
+        -
+          - 77
+          - 10
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 60
+          - 0
+        -
+          - 80
+          - 0
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 60
+          - 15
+        -
+          - 80
+          - 15
+        -
+          - 80
+          - 30
+  -
+    - 5
+    - layer: 231
+      purpose: 4294967295
+      net: ""
+      points:
+        -
+          - 60
+          - -15
+        -
+          - 80
+          - -15
+        -
+          - 80
+          - -30
+instances:
+  {}
+props:
+  interfaceLastChanged:
+    - 4
+    - time_val: 1668590009
+  partName:
+    - 3
+    - power_pmos
+  pin#:
+    - 0
+    - 3
+  portOrder:
+    - 5
+    - name: ILList
+      bin_val: ("VDD" "VDD_OUT" "G")
+  vendorName:
+    - 3
+    - ""
+app_defs:
+  _dbLastSavedCounter:
+    - 0
+    - 119
+  _dbvCvTimeStamp:
+    - 0
+    - 119
+  cdbRevision:
+    - 0
+    - 227612
